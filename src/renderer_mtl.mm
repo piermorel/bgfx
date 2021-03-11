@@ -3179,7 +3179,21 @@ namespace bgfx { namespace mtl
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
 		if (@available(macOS 10.13, *))
 		{
-			m_metalLayer.displaySyncEnabled = 0 != (_flags&BGFX_RESET_VSYNC);
+			//Only the first window is vsynced
+            NSObject* tmp = (NSObject*)_frameBuffer.m_nwh;
+            if ([tmp isKindOfClass:[NSWindow class]])
+            {
+                NSWindow* tmp_win = (NSWindow*)_frameBuffer.m_nwh;
+                static long long window_num = tmp_win.windowNumber;
+                if (window_num==tmp_win.windowNumber)
+                    m_metalLayer.displaySyncEnabled = 0 != (_flags&BGFX_RESET_VSYNC);
+                else
+                    m_metalLayer.displaySyncEnabled = false;
+            }
+            else
+            {
+                m_metalLayer.displaySyncEnabled = 0 != (_flags&BGFX_RESET_VSYNC);
+            }
 		}
 #endif // __MAC_OS_X_VERSION_MAX_ALLOWED >= 101300
 #endif // BX_PLATFORM_OSX
